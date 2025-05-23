@@ -1,0 +1,7 @@
+{
+  "name": "ManzanaApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
