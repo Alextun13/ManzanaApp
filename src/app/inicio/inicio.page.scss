@@ -1,0 +1,26 @@
+*{
+    font-family: cursive;
+    margin: 0;
+}
+
+ion-content {
+    --background: #FAF2E0ff;
+    --color: #6C4C3Dff;
+    text-align: center;
+}
+
+h1{
+    margin-bottom: 10px;
+}
+
+ion-button{
+    --color: #6C4C3Dff;
+    --background: #B19A30ff;
+    --border-radius: 10px;
+
+    margin-top: 50px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

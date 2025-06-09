@@ -1,13 +1,29 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Detección en Tiempo Real</ion-title>
-  </ion-toolbar>
-</ion-header>
-
+  <!--  
 <ion-content class="ion-padding">
   <ion-button (click)="startDetection()">Iniciar Detección</ion-button>
   
-  <video #video autoplay playsinline></video>
+  <video class="video" #video autoplay playsinline></video>
 
   <h2 *ngIf="result">{{ result }}</h2>
+</ion-content>
+-->
+
+<ion-content>
+  <div class="camera-container">
+    <video #video autoplay muted playsinline width="100%"></video>
+  </div>
+
+  <ion-button expand="block" (click)="startDetection()" [disabled]="isCameraActive">
+    📷 Iniciar detección
+  </ion-button>
+  <ion-button expand="block" color="danger" (click)="stopCamera()" *ngIf="isCameraActive">
+    ❌ Detener cámara
+  </ion-button>
+
+  <ion-card *ngIf="result">
+    <ion-card-header>
+      <ion-card-title>Resultado</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>{{ result }}</ion-card-content>
+  </ion-card>
 </ion-content>
