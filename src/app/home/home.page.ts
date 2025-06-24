@@ -42,72 +42,68 @@ export class HomePage {
 }
 */
 
-import { Component, ViewChild, ElementRef } from '@angular/core';
+// src/app/home/home.page.ts
+
+// src/app/home/home.page.ts
+
+import { Component } from '@angular/core';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import * as tf from '@tensorflow/tfjs';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  standalone: false,
+  standalone: false, // Cambiado a false para Ionic
 })
 export class HomePage {
-  @ViewChild('video', { static: false }) videoElement!: ElementRef;
-  model!: tf.LayersModel;
-  result?: string;
-  isCameraActive = false;
+  imageSrc = '';
+  prediction = '📷 Pulsa el botón para tomar una foto';
+  model: tf.GraphModel | null = null;
 
-  async ngOnInit() {
-    this.model = await tf.loadLayersModel('assets/model/model.json');
-    console.log('✅ Modelo cargado');
+  async ionViewDidEnter() {
+    await this.loadModel();
   }
 
-  async startDetection() {
-    const video = this.videoElement.nativeElement;
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    video.srcObject = stream;
-    this.isCameraActive = true;
-
-    video.onloadedmetadata = () => {
-      video.play();
-      this.detectFrame(video);
-    };
+  async loadModel() {
+    try {
+      this.model = await tf.loadGraphModel('assets/model/model.json');
+      console.log('✅ Modelo cargado');
+    } catch (error) {
+      console.error('❌ Error al cargar el modelo:', error);
+    }
   }
 
-  async detectFrame(video: HTMLVideoElement) {
-    const process = async () => {
-      if (!this.isCameraActive || !this.model) return;
-
-      const tensor = tf.tidy(() => {
-        const frameTensor = tf.browser
-          .fromPixels(video)
-          .resizeNearestNeighbor([224, 224]) // Ajusta según el input shape de tu modelo
-          .toFloat()
-          .div(tf.scalar(255))
-          .expandDims(0); // Añadir dimensión batch
-        return frameTensor;
+  async capturarFoto() {
+    try {
+      const photo = await Camera.getPhoto({
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+        quality: 90
       });
 
-      const prediction = this.model.predict(tensor) as tf.Tensor;
-      const resultArray = await prediction.data();
+      if (!photo?.dataUrl) return;
 
-      // Suponiendo salida binaria [prob_sano, prob_podrido]
-      const maxIndex = resultArray[0] > resultArray[1] ? 0 : 1;
-      this.result = maxIndex === 0 ? '✅ Manzana sana' : '⚠️ Manzana podrida';
+      this.imageSrc = photo.dataUrl;
+      this.prediction = '🔍 Analizando imagen...';
 
-      tf.dispose([tensor, prediction]);
+      const img = new Image();
+      img.src = photo.dataUrl;
+      img.onload = async () => {
+        const tensor = tf.browser.fromPixels(img).resizeNearestNeighbor([224, 224])
+          .toFloat().div(255).expandDims(0);
 
-      setTimeout(() => this.detectFrame(video), 1000); // Repite cada segundo
-    };
+        const result = this.model!.predict(tensor) as tf.Tensor;
+        const data = await result.data();
 
-    process();
-  }
+        const idx = data.indexOf(Math.max(...data));
+        this.prediction = idx === 0 ? '🍏 Manzana saludable' : '🍎 Manzana podrida';
 
-  stopCamera() {
-    const video = this.videoElement.nativeElement;
-    const stream = video.srcObject as MediaStream;
-    stream.getTracks().forEach(track => track.stop());
-    this.isCameraActive = false;
-    this.result = undefined;
+        tf.dispose([tensor, result]);
+      };
+    } catch (err) {
+      console.error('❌ Error al capturar o procesar la imagen:', err);
+      this.prediction = '⚠️ No se pudo analizar la imagen';
+    }
   }
 }

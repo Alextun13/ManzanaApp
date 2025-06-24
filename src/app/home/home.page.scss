@@ -21,18 +21,12 @@ ion-button{
     align-items: center;
 }
 
-
-.video {
-    width: 285px;
-    height: 380px;
-    position: static;
-    margin-top: 25px;
-    left: 0;;
-    object-fit: inherit;
-    z-index: -1;
-    border-radius: 25px;
-    
-    
-    display: flex;
-    align-items: center;
+.foto-container img {
+  display: block;
+  width: 260px;
+  height: 468px;
+  object-fit: cover;
+  margin: 50px auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }

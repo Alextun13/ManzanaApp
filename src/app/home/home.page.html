@@ -8,22 +8,17 @@
 </ion-content>
 -->
 
+<!-- src/app/home/home.page.html -->
+
+
 <ion-content>
-  <div class="camera-container">
-    <video #video autoplay muted playsinline width="100%"></video>
+  <ion-button expand="block" (click)="capturarFoto()">📸 Tomar Foto</ion-button>
+
+  <div class="foto-container" *ngIf="imageSrc">
+    <img [src]="imageSrc" />
   </div>
 
-  <ion-button expand="block" (click)="startDetection()" [disabled]="isCameraActive">
-    📷 Iniciar detección
-  </ion-button>
-  <ion-button expand="block" color="danger" (click)="stopCamera()" *ngIf="isCameraActive">
-    ❌ Detener cámara
-  </ion-button>
-
-  <ion-card *ngIf="result">
-    <ion-card-header>
-      <ion-card-title>Resultado</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>{{ result }}</ion-card-content>
-  </ion-card>
+  <ion-text color="primary">
+    <h2 style="text-align: center;">{{ prediction }}</h2>
+  </ion-text>
 </ion-content>
